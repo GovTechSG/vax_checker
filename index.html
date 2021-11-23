@@ -20,32 +20,42 @@
     <div id="app" class="mb-5">
       <div class="row mb-2">
         <div class="col-sm-12 col-md-6">
-          <label for="baseUrl" class="form-label">Base Domain URL</label>
+          <label for="baseUrl" class="form-label">Base Domain URL:</label>
           <input type="text" class="form-control form-control-sm" id="baseUrl" v-model="baseUrl" >
         </div>
-      </div>
-      <div class="row mb-2">
+
         <div class="col-sm-12 col-md-6">
-          <label for="accessToken" class="form-label">Access Token</label>
+          <label for="accessToken" class="form-label">Access Token:</label>
           <input type="password" class="form-control form-control-sm" id="accessToken" v-model="accessToken" >
         </div>
       </div>
 
       <div class="row mb-2">
-        <div class="col-sm-12 col-md-6">
-          <label for="dataField" class="form-label">Search Data</label><br>
-          <textarea class="form-control form-control-sm" id="dataField" v-model="searchData" rows="15"></textarea>
+        <div class="col-sm-12 col-md-12">
+          <label for="dataField" class="form-label">Search Data:</label><br>
+          <textarea class="form-control form-control-sm" id="dataField" v-model="searchData" rows="10"></textarea>
         </div>
       </div>
       <div class="row mb-2">
-        <div class="col-sm-12 col-md-6">
-          <button class="btn btn-primary" v-on:click="doCheck">Check Now!</button>
+        <div class="col-sm-12 col-md-12 align-baseline">
+          <button id="searchBtn" class="btn btn-primary" v-on:click="doCheck">Check Now!</button>
+          <div v-bind:class="showSpinner">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="row">
-        <div class="col-sm-12 col-md-8">
-          <label for="resultField" class="form-label">Result</label><br>
+        <div class="col-sm-12 col-md-12">
+          <hr>
+          <label for="resultField" class="form-label">Result:</label><br>
           <textarea class="form-control form-control-sm" id="resultField" v-model="searchResult" rows="15"></textarea>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-sm-12 col-md-12 align-baseline">
+          <button id="copyBtn" class="btn btn-info" v-on:click="copyResult">Copy Result</button>
         </div>
       </div>
     </div>
@@ -56,15 +66,23 @@
       el: '#app',
       data: {
         accessToken: '',
-        searchData: `T1111111J
-T2222222D`,
+        searchData: '',
         baseUrl: 'https://example.com',
-        searchResult: ''
+        searchResult: '',
+        isLoading: false
       },
       computed: {
+        showSpinner: function() {
+          return this.isLoading ? 'd-inline-block' : 'd-none'
+        }
       },
       methods: {
         doCheck: async function() {
+          if (this.accessToken === '' || this.baseUrl == 'https://example.com') {
+            alert('Error: Please provide a valid Base URL Domain and Access Token!')
+            return
+          }
+
           const uins = this.searchData.split('\n')
           const parent = this
 
@@ -76,21 +94,49 @@ T2222222D`,
 
           this.searchResult = ''
           if (uins && uins.length > 0) {
+            this.isLoading = true
             const results = []
             for (let i = 0; i < uins.length; i++) {
               const uin = uins[i];
 
+              if (uin === '') {
+                break
+              }
+
+              let uinResult = {fin: uin}
               try {
-                const response = await instance.get(`/vaccinations/${uin}/status?details=true`);
-                results.push(`Searching for: ${uin} - ${response.data.status}`)
+                const vaccinationResponse = await instance.get(`/vaccinations/${uin}/status?details=true`);
+                uinResult['vaccination_status'] = vaccinationResponse.data
               } catch (error) {
                 console.error(error);
+                uinResult['vaccination_status'] = null
               }
+
+              try {
+                const overrideResponse = await instance.get(`/overrides?sg_id=${uin}`);
+                uinResult['overrides'] = overrideResponse.data
+              } catch (error) {
+                console.error(error);
+                uinResult['overrides'] = null
+              }
+
+              results.push(uinResult)
             }
 
             console.log(results)
-            parent.searchResult = results.join("\n")
+            parent.searchResult = JSON.stringify(results, null, 2)
+            this.isLoading = false
+          } else {
+            alert('Error: Please provide some search data.')
+            return
           }
+        },
+        copyResult: function() {
+          navigator.clipboard.writeText(this.searchResult).then(function() {
+            alert('Copied results to clip board.')
+          }, function() {
+            alert('Error: Unable to copied results.')
+          });
         }
       }
     })
