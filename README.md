@@ -1,4 +1,4 @@
-# COVID Vaccination checker
+# COVID Vaccination Checker
 
 Browser based API testing tool for the CMB (COVID Management Backbone) API. Developed for internal use by the team at MOM WINS PO.
 
