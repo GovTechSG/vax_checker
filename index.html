@@ -103,7 +103,7 @@
                 break
               }
 
-              let uinResult = {fin: uin}
+              let uinResult = {uin: uin}
               try {
                 const vaccinationResponse = await instance.get(`/vaccinations/${uin}/status?details=true`);
                 uinResult['vaccination_status'] = vaccinationResponse.data
