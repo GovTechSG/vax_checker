@@ -58,10 +58,12 @@ T2222222D`,
       methods: {
         doCheck: function() {
           const uins = this.searchData.split('\n')
+          const parent = this
 
           if (uins && uins.length > 0) {
             uins.forEach(uin => {
               console.log('Searching for:', uin)
+              parent.searchResult = parent.searchResult + `Searching for: ${uin}\n`
             });
           }
         }
