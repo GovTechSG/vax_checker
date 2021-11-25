@@ -55,7 +55,7 @@
       </div>
       <div class="row mb-2">
         <div class="col-sm-12 col-md-12 align-baseline">
-          <button id="copyBtn" class="btn btn-info" v-on:click="copyResult">Copy Results</button>
+          <button id="copyBtn" class="btn btn-info" v-on:click="copyResult">{{copyBtnTxt}}</button>
         </div>
       </div>
     </div>
@@ -69,7 +69,8 @@
         searchData: '',
         baseUrl: 'https://example.com',
         searchResult: '',
-        isLoading: false
+        isLoading: false,
+        copyBtnTxt: 'Copy Results'
       },
       computed: {
         showSpinner: function() {
@@ -132,8 +133,12 @@
           }
         },
         copyResult: function() {
+          const parent = this
           navigator.clipboard.writeText(this.searchResult).then(function() {
-            alert('Copied results to clip board.')
+            parent.copyBtnTxt = 'Copied ✅'
+            setTimeout(function(){
+              parent.copyBtnTxt = 'Copy Results'
+            }, 700)
           }, function() {
             alert('Error: Unable to copied results.')
           });
