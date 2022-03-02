@@ -27,19 +27,16 @@
           <label for="issuanceDate" class="form-label">Issuance Date:</label><br>
           <input type="date" class="form-control" id="issuanceDate" v-model="issuanceDate">
         </div>
-        <div class="col-sm-12 col-md-3">
-          Arrival: {{ arrivalDate }} / Issuance: {{ issuanceDate }}
-        </div>
       </div>
 
       <div class="row mb-2">
         <div class="col-sm-12 col-md-3">
           <label for="startDate" class="form-label">Start Date:</label><br>
-          <input type="date" class="form-control-plaintext" id="startDate" v-model="startDate" readonly>
+          <input type="text" class="form-control-plaintext" id="startDate" v-model="startDate" readonly>
         </div>
         <div class="col-sm-12 col-md-4">
           <label for="notificationDate" class="form-label">Notification Date:</label><br>
-          <input type="date" class="form-control-plaintext" id="notificationDate" v-model="notificationDate" readonly>
+          <input type="text" class="form-control-plaintext" id="notificationDate" v-model="notificationDate" readonly>
         </div>
       </div>
 
@@ -50,7 +47,7 @@
         </div>
         <div class="col-sm-12 col-md-4">
           <label for="gracePeriodEndDate" class="form-label">Grace Period End Date (D):</label><br>
-          <input type="date" class="form-control-plaintext" id="gracePeriodEndDate" v-model="gracePeriodEndDate" readonly>
+          <input type="text" class="form-control-plaintext" id="gracePeriodEndDate" v-model="gracePeriodEndDate" readonly>
         </div>
 
       </div>
@@ -61,7 +58,7 @@
         </div>
         <div class="col-sm-12 col-md-4">
           <label for="firstReminderDate" class="form-label">R1: 1st Reminder Date (D+{{firstReminderPeriod}}):</label><br>
-          <input type="date" class="form-control-plaintext" id="firstReminderDate" v-model="firstReminderDate" readonly>
+          <input type="text" class="form-control-plaintext" id="firstReminderDate" v-model="firstReminderDate" readonly>
         </div>
       </div>
 
@@ -72,7 +69,7 @@
         </div>
         <div class="col-sm-12 col-md-4">
           <label for="secondReminderDate" class="form-label">R2: 2nd Reminder Date (D+{{secondReminderPeriod}}):</label><br>
-          <input type="date" class="form-control-plaintext" id="secondReminderDate" v-model="secondReminderDate" readonly>
+          <input type="text" class="form-control-plaintext" id="secondReminderDate" v-model="secondReminderDate" readonly>
         </div>
       </div>
       <div class="row mb-2">
@@ -82,7 +79,7 @@
         </div>
         <div class="col-sm-12 col-md-4">
           <label for="revocationDate" class="form-label">Revocation Date (D+{{revocationPeriod}}):</label><br>
-          <input type="date" class="form-control-plaintext" id="revocationDate" v-model="revocationDate" readonly>
+          <input type="text" class="form-control-plaintext" id="revocationDate" v-model="revocationDate" readonly>
         </div>
       </div>
     </div>
@@ -93,7 +90,7 @@
       el: '#app',
       data: {
         arrivalDate: null,
-        issuanceDate: moment().format('YYYY-MM-DD'),
+        issuanceDate: null,
         gracePeriod: 30,
         firstReminderPeriod: 1,
         secondReminderPeriod: 21,
@@ -102,26 +99,36 @@
       computed: {
         startDate: function() {
           if (this.arrivalDate) {
-            return this.arrivalDate
+            return moment(this.arrivalDate).format('D MMM YYYY')
           }
           if (this.issuanceDate) {
-            return this.issuanceDate
+            return moment(this.issuanceDate).format('D MMM YYYY')
           }
         },
         notificationDate: function() {
-          return moment(this.startDate).add(1, 'day').format('YYYY-MM-DD')
+          if (this.startDate) {
+            return moment(this.startDate).add(1, 'day').format('D MMM YYYY')
+          }
         },
         gracePeriodEndDate: function() {
-          return moment(this.startDate).add(this.gracePeriod, 'days').format('YYYY-MM-DD')
+          if (this.startDate) {
+            return moment(this.startDate).add(this.gracePeriod, 'days').format('D MMM YYYY')
+          }
         },
         firstReminderDate: function() {
-          return moment(this.gracePeriodEndDate).add(this.firstReminderPeriod, 'days').format('YYYY-MM-DD')
+          if (this.startDate) {
+            return moment(this.gracePeriodEndDate).add(this.firstReminderPeriod, 'days').format('D MMM YYYY')
+          }
         },
         secondReminderDate: function() {
-          return moment(this.gracePeriodEndDate).add(this.secondReminderPeriod, 'days').format('YYYY-MM-DD')
+          if (this.startDate) {
+            return moment(this.gracePeriodEndDate).add(this.secondReminderPeriod, 'days').format('D MMM YYYY')
+          }
         },
         revocationDate: function() {
-          return moment(this.gracePeriodEndDate).add(this.revocationPeriod, 'days').format('YYYY-MM-DD')
+          if (this.startDate) {
+            return moment(this.gracePeriodEndDate).add(this.revocationPeriod, 'days').format('D MMM YYYY')
+          }
         }
       },
       methods: {
