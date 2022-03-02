@@ -78,7 +78,11 @@
           <input type="number" class="form-control" id="revocationPeriod" v-model="revocationPeriod" min="0">
         </div>
         <div class="col-sm-12 col-md-4">
-          <label for="revocationDate" class="form-label">Revocation Date (D+{{revocationPeriod}}):</label><br>
+          <label for="endDate" class="form-label">End Date (D+{{revocationPeriod}}):</label><br>
+          <input type="text" class="form-control-plaintext" id="endDate" v-model="endDate" readonly>
+        </div>
+        <div class="col-sm-12 col-md-4">
+          <label for="revocationDate" class="form-label">Revocation Date (1 Day after end date):</label><br>
           <input type="text" class="form-control-plaintext" id="revocationDate" v-model="revocationDate" readonly>
         </div>
       </div>
@@ -125,9 +129,14 @@
             return moment(this.gracePeriodEndDate).add(this.secondReminderPeriod, 'days').format('D MMM YYYY')
           }
         },
-        revocationDate: function() {
+        endDate: function() {
           if (this.startDate) {
             return moment(this.gracePeriodEndDate).add(this.revocationPeriod, 'days').format('D MMM YYYY')
+          }
+        },
+        revocationDate: function() {
+          if (this.startDate) {
+            return moment(this.endDate).add(1, 'days').format('D MMM YYYY')
           }
         }
       },
